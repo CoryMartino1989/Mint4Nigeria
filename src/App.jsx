@@ -1,7 +1,7 @@
 import { useSendTransaction } from "thirdweb/react";
 import {
   createThirdwebClient,
-  getContract,
+  getContractWithAbi,
 } from "thirdweb";
 import { defineChain } from "thirdweb/chains";
 import { ConnectButton, useActiveAccount } from "thirdweb/react";
@@ -13,7 +13,7 @@ const client = createThirdwebClient({
 
 const chain = defineChain(1329);
 
-const contract = getContract({
+const contract = getContractWithAbi({
   client,
   chain,
   address: "0x00aD629685845FCfbEd45b8946bd7eC77aE2A003",
