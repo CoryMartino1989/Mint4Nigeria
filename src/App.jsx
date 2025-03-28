@@ -55,7 +55,7 @@ function MintSection() {
     const tx = claimTo({
       contract,
       to: address,
-      amount: 1,
+      amount: BigInt(1),
     });
     sendTransaction(tx);
   };
