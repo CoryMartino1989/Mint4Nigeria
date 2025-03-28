@@ -1,20 +1,21 @@
 import { useEffect, useState } from "react";
 import {
-  ThirdwebProvider,
-  ConnectWallet,
-  useContract,
-  useAddress,
-  useContractWrite,
-  metamaskWallet,
-  walletConnect,
-} from "@thirdweb-dev/react";
-import { createThirdwebClient, defineChain } from "thirdweb";
+  ConnectButton,
+  useConnect,
+  useAccount,
+  useActiveWalletConnectionStatus,
+  useActiveWalletAddress,
+} from "thirdweb/react";
+import {
+  createThirdwebClient,
+  getContract,
+} from "thirdweb";
+import { defineChain } from "thirdweb/chains";
 
-// Custom Nigerian-styled theme
 const styles = {
   container: {
     minHeight: "100vh",
-    backgroundColor: "#008753", // Nigerian green
+    backgroundColor: "#008753",
     color: "#ffffff",
     display: "flex",
     flexDirection: "column",
@@ -36,26 +37,26 @@ const styles = {
   },
 };
 
-// Thirdweb client setup
 const client = createThirdwebClient({
   clientId: "9db4f27b3ff418eb08e209f9d863cce7",
 });
 
-// Contract and chain details
-const CONTRACT_ADDRESS = "0x00aD629685845FCfbEd45b8946bd7eC77aE2A003";
-const seiChain = defineChain(1329); // Sei EVM mainnet chainId
+const chain = defineChain(1329);
+const contract = getContract({
+  client,
+  chain,
+  address: "0x00aD629685845FCfbEd45b8946bd7eC77aE2A003",
+});
 
 function MintSection() {
-  const address = useAddress();
-  const { contract } = useContract(CONTRACT_ADDRESS);
-  const { mutateAsync: claimNFT, isLoading } = useContractWrite(contract, "claim");
+  const address = useActiveWalletAddress();
 
   const handleMint = async () => {
     try {
-      const result = await claimNFT({ args: [address, 1] });
-      console.log("NFT Minted:", result);
-    } catch (error) {
-      console.error("Minting error:", error);
+      const tx = await contract.write("claim", [address, 1]);
+      console.log("Minted:", tx);
+    } catch (err) {
+      console.error("Mint failed:", err);
     }
   };
 
@@ -64,8 +65,8 @@ function MintSection() {
       {address ? (
         <>
           <p>Connected as: {address}</p>
-          <button style={styles.button} onClick={handleMint} disabled={isLoading}>
-            {isLoading ? "Minting..." : "Mint NFT"}
+          <button style={styles.button} onClick={handleMint}>
+            Mint NFT
           </button>
         </>
       ) : (
@@ -77,19 +78,10 @@ function MintSection() {
 
 export default function App() {
   return (
-    <ThirdwebProvider
-      clientId="9db4f27b3ff418eb08e209f9d863cce7"
-      activeChain={seiChain}
-      supportedWallets={[
-        metamaskWallet({ projectId: "8e16b3285debe4e3bbefcef01b2d3006" }),
-        walletConnect({ projectId: "8e16b3285debe4e3bbefcef01b2d3006" }),
-      ]}
-    >
-      <div style={styles.container}>
-        <h1>Nigerian NFT Mint Site 🇳🇬</h1>
-        <ConnectWallet theme="light" />
-        <MintSection />
-      </div>
-    </ThirdwebProvider>
+    <div style={styles.container}>
+      <h1>Nigerian NFT Mint Site 🇳🇬</h1>
+      <ConnectButton client={client} chain={chain} />
+      <MintSection />
+    </div>
   );
 }
