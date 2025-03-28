@@ -1,14 +1,11 @@
 import { useEffect, useState } from "react";
 import {
   ConnectButton,
-  useConnect,
-  useAccount,
-  useActiveWalletConnectionStatus,
   useActiveAccount,
 } from "thirdweb/react";
 import {
   createThirdwebClient,
-  getContract,
+  getNFTDrop,
 } from "thirdweb";
 import { defineChain } from "thirdweb/chains";
 
@@ -42,7 +39,7 @@ const client = createThirdwebClient({
 });
 
 const chain = defineChain(1329);
-const contract = getContract({
+const contract = getNFTDrop({
   client,
   chain,
   address: "0x00aD629685845FCfbEd45b8946bd7eC77aE2A003",
@@ -54,8 +51,11 @@ function MintSection() {
 
   const handleMint = async () => {
     try {
-      const tx = await contract.write("claim", [address, 1]);
-      console.log("Minted:", tx);
+      const tx = await contract.claim({
+        to: address,
+        quantity: 1,
+      });
+      console.log("Minted successfully:", tx);
     } catch (err) {
       console.error("Mint failed:", err);
     }
