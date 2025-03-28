@@ -5,7 +5,7 @@ import {
 } from "thirdweb";
 import { defineChain } from "thirdweb/chains";
 import { ConnectButton, useActiveAccount } from "thirdweb/react";
-import ABI from "./abi.json";
+import ABI from "../abi.json";
 
 const client = createThirdwebClient({
   clientId: "9db4f27b3ff418eb08e209f9d863cce7",
