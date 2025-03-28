@@ -25,11 +25,31 @@ export default function App() {
   const { mutate: sendTransaction, isPending, isSuccess, error } = useSendTransaction();
 
   const handleMint = async () => {
-    if (!account) return;
-
-    const tx = await contract.write.claim([account.address, BigInt(1), "0x0000000000000000000000000000000000000000", BigInt(0), { proof: [], quantityLimitPerWallet: BigInt(0), pricePerToken: BigInt(0), currency: "0x0000000000000000000000000000000000000000" }, "0x"]);
-
-    sendTransaction(tx);
+    if (!contract || !contract.write || typeof contract.write.claim !== "function") {
+      console.error("Contract not ready or claim function is undefined");
+      return;
+    }
+    try {
+      setStatus("Minting...");
+      const tx = await contract.write.claim([
+        account.address,
+        BigInt(1),
+        "0x0000000000000000000000000000000000000000",
+        BigInt(0),
+        {
+          proof: [],
+          quantityLimitPerWallet: BigInt(0),
+          pricePerToken: BigInt(0),
+          currency: "0x0000000000000000000000000000000000000000",
+        },
+        "0x",
+      ]);
+      console.log("Transaction sent:", tx);
+      setStatus("Mint successful!");
+    } catch (err) {
+      console.error("Mint failed:", err);
+      setStatus("Mint failed.");
+    }
   };
 
   return (
