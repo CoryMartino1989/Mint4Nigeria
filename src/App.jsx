@@ -1,13 +1,11 @@
-import { useEffect, useState } from "react";
-import {
-  ConnectButton,
-  useActiveAccount,
-} from "thirdweb/react";
+import { useSendTransaction } from "thirdweb/react";
+import { claimTo } from "thirdweb/extensions/erc721";
 import {
   createThirdwebClient,
-  getNFTDrop,
+  getContract,
 } from "thirdweb";
 import { defineChain } from "thirdweb/chains";
+import { ConnectButton, useActiveAccount } from "thirdweb/react";
 
 const styles = {
   container: {
@@ -39,26 +37,27 @@ const client = createThirdwebClient({
 });
 
 const chain = defineChain(1329);
-const contract = getNFTDrop({
+
+const contract = getContract({
   client,
   chain,
   address: "0x00aD629685845FCfbEd45b8946bd7eC77aE2A003",
+  contractType: "nft-drop",
 });
 
 function MintSection() {
   const account = useActiveAccount();
   const address = account?.address;
 
-  const handleMint = async () => {
-    try {
-      const tx = await contract.claim({
-        to: address,
-        quantity: 1,
-      });
-      console.log("Minted successfully:", tx);
-    } catch (err) {
-      console.error("Mint failed:", err);
-    }
+  const { mutate: sendTransaction, isPending, isSuccess, error } = useSendTransaction();
+
+  const handleMint = () => {
+    const tx = claimTo({
+      contract,
+      to: address,
+      amount: 1,
+    });
+    sendTransaction(tx);
   };
 
   return (
@@ -66,9 +65,11 @@ function MintSection() {
       {address ? (
         <>
           <p>Connected as: {address}</p>
-          <button style={styles.button} onClick={handleMint}>
-            Mint NFT
+          <button style={styles.button} onClick={handleMint} disabled={isPending}>
+            {isPending ? "Minting..." : "Mint NFT"}
           </button>
+          {isSuccess && <p>✅ Mint successful!</p>}
+          {error && <p>❌ Mint failed: {error.message}</p>}
         </>
       ) : (
         <p>Please connect your wallet.</p>
