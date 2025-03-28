@@ -6,6 +6,7 @@ import {
 } from "thirdweb";
 import { defineChain } from "thirdweb/chains";
 import { ConnectButton, useActiveAccount } from "thirdweb/react";
+import { toUnits } from "thirdweb/utils";
 
 const client = createThirdwebClient({
   clientId: "9db4f27b3ff418eb08e209f9d863cce7",
@@ -26,11 +27,15 @@ export default function App() {
 
   const handleMint = () => {
     if (!account) return;
+
+    const amount = toUnits("1", 0); // NFT = 0 decimals
+
     const tx = claimTo({
       contract,
       to: account.address,
-      amount: BigInt("1"),
+      amount,
     });
+
     sendTransaction(tx);
   };
 
