@@ -4,7 +4,7 @@ import {
   useConnect,
   useAccount,
   useActiveWalletConnectionStatus,
-  useActiveWalletAddress,
+  useActiveAccount,
 } from "thirdweb/react";
 import {
   createThirdwebClient,
@@ -49,7 +49,8 @@ const contract = getContract({
 });
 
 function MintSection() {
-  const address = useActiveWalletAddress();
+  const account = useActiveAccount();
+  const address = account?.address;
 
   const handleMint = async () => {
     try {
